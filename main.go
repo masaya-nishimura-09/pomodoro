@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/gosuri/uilive"
@@ -14,31 +13,20 @@ type Session struct {
 }
 
 func main() {
-	f, textOpenErr := os.Open("gopher4.txt")
-	if textOpenErr != nil {
-		fmt.Println(textOpenErr)
-		fmt.Println("fail to open file")
-	}
-
-	data := make([]byte, 10000)
-	count, fileReadErr := f.Read(data)
-	if fileReadErr != nil {
-		fmt.Println(fileReadErr)
-		fmt.Println("fail to read file")
-	}
-
-	fmt.Println(string(data[:count]))
+	focusTimer := "timers/gopher_focus.txt"
+	shortBreakTimer := "timers/gopher_short_break.txt"
+	longBreakTimer := "timers/gopher_long_break.txt"
 
 	session := Session{}
 	for {
 		session.AddCount()
 		switch session.count {
 		case 1, 3, 5, 7:
-			timer(24, "Time to focus")
+			timer(24, getAsciiData(focusTimer))
 		case 2, 4, 6:
-			timer(4, "Short break")
+			timer(4, getAsciiData(shortBreakTimer))
 		case 8:
-			timer(14, "Long break")
+			timer(14, getAsciiData(longBreakTimer))
 			session.count = 0
 		}
 	}
@@ -48,28 +36,41 @@ func (s *Session) AddCount() {
 	s.count++
 }
 
-func timer(minutes int, status string) {
-	min := minutes
-	sec := 59
+func timer(minutes int, data []byte) {
+	arrowPosition := 2300
 
 	writer := uilive.New()
 	writer.Start()
 
-	for m := min; m >= 0; m-- {
-		for s := sec; s >= 0; s-- {
-			formattedM := strconv.Itoa(m)
-			formattedS := strconv.Itoa(s)
-			if m < 10 {
-				formattedM = "0" + strconv.Itoa(m)
-			}
-			if s < 10 {
-				formattedS = "0" + strconv.Itoa(s)
-			}
+	for m := 0; m <= minutes; m-- {
+		newData := make([]byte, 0, len(data)+1)
+		newData = append(newData, data[:arrowPosition+1]...)
+		newData = append(newData, []byte("^")...)
+		newData = append(newData, data[arrowPosition+2:]...)
 
-			fmt.Fprintf(writer, "%s %s:%s\n", status, formattedM, formattedS)
-			time.Sleep(time.Second)
-		}
+		fmt.Fprintf(writer, "%s", string(newData))
+
+		arrowPosition = arrowPosition + 2
+
+		time.Sleep(time.Minute)
 	}
 
 	writer.Stop()
+}
+
+func getAsciiData(filePath string) []byte {
+	f, textOpenErr := os.Open(filePath)
+	if textOpenErr != nil {
+		fmt.Println(textOpenErr)
+		fmt.Println("fail to open file")
+	}
+
+	data := make([]byte, 4000)
+	_, fileReadErr := f.Read(data)
+	if fileReadErr != nil {
+		fmt.Println(fileReadErr)
+		fmt.Println("fail to read file")
+	}
+
+	return data
 }
