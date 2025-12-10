@@ -22,7 +22,7 @@ func main() {
 		session.AddCount()
 		switch session.count {
 		case 1, 3, 5, 7:
-			timer(2, getAsciiData(focusTimer))
+			timer(25, getAsciiData(focusTimer))
 		case 2, 4, 6:
 			timer(5, getAsciiData(shortBreakTimer))
 		case 8:
