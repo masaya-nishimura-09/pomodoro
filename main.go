@@ -22,11 +22,11 @@ func main() {
 		session.AddCount()
 		switch session.count {
 		case 1, 3, 5, 7:
-			timer(24, getAsciiData(focusTimer))
+			timer(2, getAsciiData(focusTimer))
 		case 2, 4, 6:
-			timer(4, getAsciiData(shortBreakTimer))
+			timer(5, getAsciiData(shortBreakTimer))
 		case 8:
-			timer(14, getAsciiData(longBreakTimer))
+			timer(15, getAsciiData(longBreakTimer))
 			session.count = 0
 		}
 	}
@@ -42,7 +42,7 @@ func timer(minutes int, data []byte) {
 	writer := uilive.New()
 	writer.Start()
 
-	for m := 0; m <= minutes; m-- {
+	for m := 0; m < minutes; m++ {
 		newData := make([]byte, 0, len(data)+1)
 		newData = append(newData, data[:arrowPosition+1]...)
 		newData = append(newData, []byte("^")...)
