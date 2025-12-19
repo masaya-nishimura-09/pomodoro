@@ -42,7 +42,7 @@ func timer(minutes int, data []byte) {
 	writer := uilive.New()
 	writer.Start()
 
-	for m := 0; m < minutes; m++ {
+	for range minutes {
 		newData := make([]byte, 0, len(data)+1)
 		newData = append(newData, data[:arrowPosition+1]...)
 		newData = append(newData, []byte("^")...)
