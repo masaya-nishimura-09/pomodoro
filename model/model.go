@@ -5,7 +5,6 @@ type Session struct {
 }
 
 type Timer struct {
-	Type int
 	Time int
 	Data []byte
 }
