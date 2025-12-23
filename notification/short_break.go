@@ -1,9 +1,12 @@
 package notification
 
 import (
-	"github.com/Bishwas-py/notify"
 	"log"
+	"os"
+	"path/filepath"
 	"time"
+
+	"github.com/Bishwas-py/notify"
 )
 
 func ShortBreak() {
@@ -16,14 +19,21 @@ func ShortBreak() {
 		Actions: notify.Actions{
 			{
 				Title:   "OK",
-                Trigger: func(){},
+				Trigger: func() {},
 			},
 		},
 	}
-
-	// Display notification and wait for response
-	_, err := notification.Trigger()
+	ex, err := os.Executable()
 	if err != nil {
 		log.Printf("Error: %v", err)
+	}
+	exeDir := filepath.Dir(ex)
+	soundPath := filepath.Join(exeDir, "notification", "gopher_sound.wav")
+	notification.SetSoundByPath(soundPath)
+
+	// Display notification and wait for response
+	_, triggerErr := notification.Trigger()
+	if triggerErr != nil {
+		log.Printf("Error: %v", triggerErr)
 	}
 }

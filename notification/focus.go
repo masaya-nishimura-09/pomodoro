@@ -4,6 +4,8 @@ import (
 	"github.com/Bishwas-py/notify"
 	"log"
 	"time"
+	"os"
+	"path/filepath"
 )
 
 func Focus() {
@@ -20,10 +22,18 @@ func Focus() {
 			},
 		},
 	}
-
-	// Display notification and wait for response
-	_, err := notification.Trigger()
+	ex, err := os.Executable()
 	if err != nil {
 		log.Printf("Error: %v", err)
 	}
+	exeDir := filepath.Dir(ex)
+	soundPath := filepath.Join(exeDir, "notification", "gopher_sound.wav")
+	notification.SetSoundByPath(soundPath)
+
+	// Display notification and wait for response
+    _, triggerErr := notification.Trigger()
+	if triggerErr != nil {
+		log.Printf("Error: %v", triggerErr)
+	}
+
 }
