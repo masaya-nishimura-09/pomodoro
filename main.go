@@ -13,11 +13,11 @@ func main() {
 	session := model.Session{}
 
 	focus := model.Timer{
-		Time: 1,
+		Time: 25,
 		Data: getAsciiData("ascii/gopher_focus.txt"),
 	}
 	shortBreak := model.Timer{
-		Time: 1,
+		Time: 5,
 		Data: getAsciiData("ascii/gopher_short_break.txt"),
 	}
 	longBreak := model.Timer{
