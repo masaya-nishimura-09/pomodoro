@@ -2,52 +2,81 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"time"
+	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type model int
+type model struct {
+	cursor   int
+	timers   []string
+	selected map[int]struct{}
+}
 
-type tickMsg time.Time
-
-func main() {
-	p := tea.NewProgram(model(5), tea.WithAltScreen())
-	if _, err := p.Run(); err != nil {
-		log.Fatal(err)
+func initialModel() model {
+	return model{
+		timers:   []string{"Focus", "Short Break", "Long Break"},
+		selected: make(map[int]struct{}),
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return tick()
+	return tea.SetWindowTitle("Select Timer")
 }
 
-func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := message.(type) {
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "q", "esc", "ctrl+c":
+		case "ctrl+c", "q":
 			return m, tea.Quit
+		case "up", "k":
+			if m.cursor > 0 {
+				m.cursor--
+			}
+		case "down", "j":
+			if m.cursor < len(m.timers)-1 {
+				m.cursor++
+			}
+		case "enter", " ":
+			_, ok := m.selected[m.cursor]
+			if ok {
+				delete(m.selected, m.cursor)
+			} else {
+				m.selected[m.cursor] = struct{}{}
+			}
 		}
-
-	case tickMsg:
-		m--
-		if m <= 0 {
-			return m, tea.Quit
-		}
-		return m, tick()
 	}
 
 	return m, nil
 }
 
 func (m model) View() string {
-	return fmt.Sprintf("\n\n     Hi. This program will exit in %d seconds...", m)
+	s := "Select timer type\n\n"
+
+	for i, timer := range m.timers {
+		cursor := " "
+		if m.cursor == i {
+			cursor = ">"
+		}
+
+		checked := " "
+		if _, ok := m.selected[i]; ok {
+			checked = "x"
+		}
+
+		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, timer)
+	}
+
+	s += "\nPress q to quit.\n"
+
+	return s
 }
 
-func tick() tea.Cmd {
-	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
-		return tickMsg(t)
-	})
+func main() {
+	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("There's been an error: %v", err)
+		os.Exit(1)
+	}
 }
