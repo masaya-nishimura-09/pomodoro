@@ -2,62 +2,52 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"log"
+	"time"
 
-	"github.com/masaya-nishimura-09/pomodoro/model"
-	"github.com/masaya-nishimura-09/pomodoro/notification"
-	"github.com/masaya-nishimura-09/pomodoro/timer"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
+type model int
+
+type tickMsg time.Time
+
 func main() {
-	session := model.Session{}
-
-	focus := model.Timer{
-		Time: 25,
-		Data: getAsciiData("ascii/gopher_focus.txt"),
-	}
-	shortBreak := model.Timer{
-		Time: 5,
-		Data: getAsciiData("ascii/gopher_short_break.txt"),
-	}
-	longBreak := model.Timer{
-		Time: 15,
-		Data: getAsciiData("ascii/gopher_long_break.txt"),
-	}
-
-	for {
-		session.AddCount()
-
-		switch session.Count {
-		case 1, 3, 5:
-			timer.Timer(focus)
-			notification.ShortBreak()
-		case 2, 4, 6:
-			timer.Timer(shortBreak)
-			notification.Focus()
-		case 7:
-			timer.Timer(focus)
-			notification.LongBreak()
-		case 8:
-			timer.Timer(longBreak)
-			notification.Focus()
-		}
+	p := tea.NewProgram(model(5), tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		log.Fatal(err)
 	}
 }
 
-func getAsciiData(filePath string) []byte {
-	f, textOpenErr := os.Open(filePath)
-	if textOpenErr != nil {
-		fmt.Println(textOpenErr)
-		fmt.Println("fail to open file")
+func (m model) Init() tea.Cmd {
+	return tick()
+}
+
+func (m model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := message.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "q", "esc", "ctrl+c":
+			return m, tea.Quit
+		}
+
+	case tickMsg:
+		m--
+		if m <= 0 {
+			return m, tea.Quit
+		}
+		return m, tick()
 	}
 
-	data := make([]byte, 4000)
-	_, fileReadErr := f.Read(data)
-	if fileReadErr != nil {
-		fmt.Println(fileReadErr)
-		fmt.Println("fail to read file")
-	}
+	return m, nil
+}
 
-	return data
+func (m model) View() string {
+	return fmt.Sprintf("\n\n     Hi. This program will exit in %d seconds...", m)
+}
+
+func tick() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return tickMsg(t)
+	})
 }
