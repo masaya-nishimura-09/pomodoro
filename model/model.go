@@ -10,6 +10,7 @@ type Model struct {
 	Cursor   int
 	Timers   []string
 	Selected map[int]struct{}
+	Page     int
 }
 
 func (m Model) Init() tea.Cmd {
@@ -34,6 +35,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			_, ok := m.Selected[m.Cursor]
 			if ok {
 				delete(m.Selected, m.Cursor)
+				m.Page = 1
 			} else {
 				m.Selected[m.Cursor] = struct{}{}
 			}
@@ -44,23 +46,31 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	s := "Select timer type\n\n"
+	switch m.Page {
+	case 0:
+		s := "Select timer type\n\n"
 
-	for i, timer := range m.Timers {
-		cursor := " "
-		if m.Cursor == i {
-			cursor = ">"
+		for i, timer := range m.Timers {
+			cursor := " "
+			if m.Cursor == i {
+				cursor = ">"
+			}
+
+			checked := " "
+			if _, ok := m.Selected[i]; ok {
+				checked = "x"
+			}
+
+			s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, timer)
 		}
 
-		checked := " "
-		if _, ok := m.Selected[i]; ok {
-			checked = "x"
-		}
+		s += "\nPress q to quit.\n"
 
-		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, timer)
+		return s
+	case 1:
+		s := fmt.Sprintf("You selected [%s].\n\n", m.Timers[m.Cursor])
+		return s
 	}
 
-	s += "\nPress q to quit.\n"
-
-	return s
+	return ""
 }
