@@ -8,9 +8,19 @@ import (
 )
 
 type model struct {
+	screen     int
+	homeModel  homeModel
+	timerModel timerModel
+}
+
+type homeModel struct {
 	cursor int
 	timers []string
-	page   int
+}
+
+type timerModel struct {
+	timerType int
+	timers    []string
 }
 
 func (m model) Init() tea.Cmd {
@@ -24,41 +34,50 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "up", "k":
-			if m.cursor > 0 {
-				m.cursor--
+			if m.homeModel.cursor > 0 {
+				m.homeModel.cursor--
 			}
 		case "down", "j":
-			if m.cursor < len(m.timers)-1 {
-				m.cursor++
+			if m.homeModel.cursor < len(m.homeModel.timers)-1 {
+				m.homeModel.cursor++
 			}
 		case "enter", " ":
-			m.page = 1
+			m.screen = 1
+			m.timerModel.timerType = m.homeModel.cursor
 		}
 	}
 
 	return m, nil
 }
 
-func (m model) View() string {
-	switch m.page {
-	case 0:
-		s := "Select timer type\n\n"
+func (m timerModel) View() string {
+	s := fmt.Sprintf("You selected [%s].\n\n", m.timers[m.timerType])
+	return s
+}
 
-		for i, timer := range m.timers {
-			cursor := " "
-			if m.cursor == i {
-				cursor = ">"
-			}
+func (m homeModel) View() string {
+	s := "Select timer type\n\n"
 
-			s += fmt.Sprintf("%s %s\n", cursor, timer)
+	for i, timer := range m.timers {
+		cursor := " "
+		if m.cursor == i {
+			cursor = ">"
 		}
 
-		s += "\nPress q to quit.\n"
+		s += fmt.Sprintf("%s %s\n", cursor, timer)
+	}
 
-		return s
+	s += "\nPress q to quit.\n"
+
+	return s
+}
+
+func (m model) View() string {
+	switch m.screen {
+	case 0:
+		return m.homeModel.View()
 	case 1:
-		s := fmt.Sprintf("You selected [%s].\n\n", m.timers[m.cursor])
-		return s
+		return m.timerModel.View()
 	}
 
 	return ""
@@ -66,7 +85,13 @@ func (m model) View() string {
 
 func initialModel() model {
 	return model{
-		timers: []string{"Focus", "Short Break", "Long Break"},
+		screen: 0,
+		homeModel: homeModel{
+			timers: []string{"Focus", "Short Break", "Long Break"},
+		},
+		timerModel: timerModel{
+			timers: []string{"Focus", "Short Break", "Long Break"},
+		},
 	}
 }
 
