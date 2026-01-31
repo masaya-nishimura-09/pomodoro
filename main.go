@@ -21,6 +21,7 @@ type homeModel struct {
 type timerModel struct {
 	timerType int
 	timers    []string
+	time      int
 }
 
 func (m model) Init() tea.Cmd {
@@ -51,7 +52,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m timerModel) View() string {
-	s := fmt.Sprintf("You selected [%s].\n\n", m.timers[m.timerType])
+	s := fmt.Sprintf("%s\n\n", m.timers[m.timerType])
+
+	switch m.timerType {
+	case 0:
+		s += fmt.Sprintf("%s %s\n", cursor, timer)
+	}
 	return s
 }
 
