@@ -16,7 +16,7 @@ void timer(Status *status)
     for (int i = status->min; i >= 0 ; i--) {
         for (int j = 59; j >= 0 ; j--) {
             printf("%s\n", status->title);
-            printf("%d:%d\n", i, j);
+            printf("%02d:%02d\n", i, j);
             sleep(1);
             printf("\033[H\033[J");
         }
@@ -32,7 +32,7 @@ int main(void)
             case 0: case 2: case 4: case 6:
                 strcpy(status.title, "Focus");
                 strcpy(status.message, "Time to focus!");
-                status.min = 24;
+                status.min = 0;
                 break;
             case 1: case 3: case 5:
                 strcpy(status.title, "Short Break!");
