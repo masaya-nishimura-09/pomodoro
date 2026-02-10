@@ -32,7 +32,7 @@ int main(void)
             case 0: case 2: case 4: case 6:
                 strcpy(status.title, "Focus");
                 strcpy(status.message, "Time to focus!");
-                status.min = 0;
+                status.min = 24;
                 break;
             case 1: case 3: case 5:
                 strcpy(status.title, "Short Break!");
