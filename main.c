@@ -1,3 +1,7 @@
+// todo: pause button
+// todo: restart button
+// todo: sound
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -45,7 +49,7 @@ int main(void)
                 status.min = 14;
                 break;
         }
-        
+
         /* Show notification */
         NotifyNotification *notif;
         notify_init("Pomodoro");
