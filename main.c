@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <libnotify/notify.h>
+#include <ncurses.h>
 
 typedef struct  {
     int progress;
@@ -16,19 +17,21 @@ typedef struct  {
 
 void timer(Status *status)
 {
-    printf("\033[H\033[J");
     for (int i = status->min; i >= 0 ; i--) {
         for (int j = 59; j >= 0 ; j--) {
-            printf("%s\n", status->title);
-            printf("%02d:%02d\n", i, j);
+            mvprintw(0, 0, "%s\n", status->title);
+            mvprintw(1, 0, "%02d:%02d\n", i, j);
+            refresh();
             sleep(1);
-            printf("\033[H\033[J");
         }
     }
 }
 
 int main(void)
 {
+	initscr();
+    curs_set(0); 
+
     Status status = {0};
 
     while (1) {
@@ -63,6 +66,8 @@ int main(void)
             status.progress = 0;
         }
     }
+
+	endwin();	
 
     return 0;
 }
