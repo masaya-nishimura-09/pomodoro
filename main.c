@@ -1,7 +1,3 @@
-// todo: pause button
-// todo: restart button
-// todo: sound
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
